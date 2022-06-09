@@ -3,9 +3,10 @@
  */
 package com.bankApplication.BankingApplicationSystem.controller;
 
+import com.bankApplication.BankingApplicationSystem.entity.Account;
+import com.bankApplication.BankingApplicationSystem.entity.Amount;
+import com.bankApplication.BankingApplicationSystem.exception.AmountParserException;
 import com.bankApplication.BankingApplicationSystem.service.AccountOperations;
-import com.bankApplication.BankingApplicationSystem.service.impl.AccountOperationsImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Scanner;
 
@@ -14,42 +15,59 @@ import java.util.Scanner;
  */
 public class AccountController {
 
-    AccountOperationsImpl accountOperations = new AccountOperationsImpl();
+    private AccountOperations accountOperations;
+
+    public AccountController(AccountOperations accountOperations) {
+        this.accountOperations = accountOperations;
+    }
 
     /**
      * This run function operates when it is called from main.
      */
-    public void run()
-    {
+    public void run() throws AmountParserException {
         Scanner scanner = new Scanner(System.in);
-        boolean flag = true;
-        int choice;
-        do{
+        while (true) {
             System.out.println("Select an option:\n" +
                     "1. Credit\n" +
                     "2. Debit\n" +
                     "3. Check Balance\n" +
                     "4. Exit");
-            choice = scanner.nextInt();
+            Integer choice = scanner.nextInt();
+            scanner.nextLine();
             switch (choice)
             {
                 case 1:
-                    accountOperations.performCredit();
+                    System.out.println("Enter Amount ");
+                    try {
+                        String input = scanner.nextLine();
+                        Amount creditAmount = new Amount(input);
+                        accountOperations.performCredit(creditAmount);
+                    }
+                    catch (Exception ex) {
+                        System.out.println(ex.toString());
+                    }
                     break;
                 case 2:
-                    accountOperations.performDebit();
+                    System.out.println("Enter Amount ");
+                    try {
+                        String input = scanner.nextLine();
+                        Amount debitAmount = new Amount(input);
+                        accountOperations.performDebit(debitAmount);
+                    }
+                    catch (Exception ex) {
+                        System.out.println(ex.toString());
+                    }
                     break;
                 case 3:
-                    accountOperations.checkBalance();
+                    System.out.println("Current Balance is " + accountOperations.checkBalance().toString());
                     break;
                 case 4:
                     System.out.println("Thank you!");
-                    flag = false;
-                    break;
+                    return;
                 default:
                     System.out.println("Not a valid choice");
                     break;
             }
-        }while(flag);
+        }
     }
 }
